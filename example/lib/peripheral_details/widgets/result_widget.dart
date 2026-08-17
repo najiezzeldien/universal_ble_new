@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class ResultWidget extends StatelessWidget {
   final List<String> results;
@@ -36,8 +36,10 @@ class ResultWidget extends StatelessWidget {
             return InkWell(
               onTap: () => onClearTap(index),
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 11, vertical: 2),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 11,
+                  vertical: 2,
+                ),
                 child: Text(results[index]),
               ),
             );

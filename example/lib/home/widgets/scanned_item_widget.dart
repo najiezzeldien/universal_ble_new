@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:universal_ble/universal_ble.dart';
 
 class ScannedItemWidget extends StatelessWidget {
@@ -19,9 +19,7 @@ class ScannedItemWidget extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Card(
         child: ListTile(
-          title: Text(
-            '$name (${bleDevice.rssi})',
-          ),
+          title: Text('$name (${bleDevice.rssi})'),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -33,10 +31,7 @@ class ScannedItemWidget extends StatelessWidget {
               if (bleDevice.timestampDateTime != null)
                 Text("Last Seen: ${bleDevice.timestampDateTime}"),
               bleDevice.paired == true
-                  ? const Text(
-                      "Paired",
-                      style: TextStyle(color: Colors.green),
-                    )
+                  ? const Text("Paired", style: TextStyle(color: Colors.green))
                   : const Text(
                       "Not Paired",
                       style: TextStyle(color: Colors.red),

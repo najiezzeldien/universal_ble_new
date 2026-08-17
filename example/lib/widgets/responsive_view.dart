@@ -1,10 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
-enum DeviceType {
-  mobile,
-  tablet,
-  desktop,
-}
+enum DeviceType { mobile, tablet, desktop }
 
 class ResponsiveView extends StatelessWidget {
   final Widget Function(BuildContext context, DeviceType deviceType) builder;
@@ -19,8 +15,8 @@ class ResponsiveView extends StatelessWidget {
           constraints.maxWidth > 1000
               ? DeviceType.desktop
               : constraints.maxWidth > 600 && constraints.maxWidth < 1000
-                  ? DeviceType.tablet
-                  : DeviceType.mobile,
+              ? DeviceType.tablet
+              : DeviceType.mobile,
         );
       },
     );

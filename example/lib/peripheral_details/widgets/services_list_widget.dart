@@ -1,14 +1,12 @@
 import 'package:expandable/expandable.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:universal_ble/universal_ble.dart';
 
 class ServicesListWidget extends StatelessWidget {
   final List<BleService> discoveredServices;
   final bool scrollable;
-  final void Function(
-    BleService service,
-    BleCharacteristic characteristic,
-  )? onTap;
+  final void Function(BleService service, BleCharacteristic characteristic)?
+  onTap;
 
   const ServicesListWidget({
     super.key,
@@ -39,39 +37,40 @@ class ServicesListWidget extends StatelessWidget {
               ),
               collapsed: const SizedBox(),
               expanded: Column(
-                children: discoveredServices[index]
-                    .characteristics
-                    .map((e) => Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              InkWell(
-                                onTap: () {
-                                  onTap?.call(discoveredServices[index], e);
-                                },
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        const Icon(Icons.arrow_right_outlined),
-                                        Expanded(child: Text(e.uuid)),
-                                      ],
-                                    ),
+                children: discoveredServices[index].characteristics
+                    .map(
+                      (e) => Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                onTap?.call(discoveredServices[index], e);
+                              },
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.arrow_right_outlined),
+                                      Expanded(child: Text(e.uuid)),
+                                    ],
+                                  ),
+                                  Text(
+                                    "Properties: ${e.properties.map((e) => e.name)}",
+                                  ),
+                                  if (e.descriptors.isNotEmpty)
                                     Text(
-                                      "Properties: ${e.properties.map((e) => e.name)}",
+                                      "Descriptors: ${e.descriptors.map((e) => e.uuid).join(', ')}",
                                     ),
-                                    if (e.descriptors.isNotEmpty)
-                                      Text(
-                                        "Descriptors: ${e.descriptors.map((e) => e.uuid).join(', ')}",
-                                      )
-                                  ],
-                                ),
+                                ],
                               ),
-                            ],
-                          ),
-                        ))
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
                     .toList(),
               ),
             ),

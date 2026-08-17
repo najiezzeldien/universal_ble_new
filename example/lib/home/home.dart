@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:universal_ble/universal_ble.dart';
 import 'package:universal_ble_example/data/mock_universal_ble.dart';
 import 'package:universal_ble_example/home/widgets/android_scan_options_widget.dart';
@@ -81,13 +81,13 @@ class _CentralHomeState extends State<CentralHome> {
   }
 
   void trackAvailabilityState() {
-    _availabilityStreamSubscription = UniversalBle.availabilityStream.listen(
-      (state) {
-        setState(() {
-          bleAvailabilityState = state;
-        });
-      },
-    );
+    _availabilityStreamSubscription = UniversalBle.availabilityStream.listen((
+      state,
+    ) {
+      setState(() {
+        bleAvailabilityState = state;
+      });
+    });
     setState(() {});
   }
 
@@ -107,7 +107,8 @@ class _CentralHomeState extends State<CentralHome> {
             defaultTargetPlatform == TargetPlatform.iOS) &&
         (scanFilter?.withServices ?? []).isEmpty) {
       showSnackbar(
-          "No services filter was set for getting system connected devices. Using default services...");
+        "No services filter was set for getting system connected devices. Using default services...",
+      );
     }
 
     List<BleDevice> devices = await UniversalBle.getSystemDevices(
@@ -159,9 +160,8 @@ class _CentralHomeState extends State<CentralHome> {
   }
 
   void showSnackbar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -190,11 +190,10 @@ class _CentralHomeState extends State<CentralHome> {
                   const Padding(
                     padding: EdgeInsets.all(8.0),
                     child: SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator.adaptive(
-                          strokeWidth: 2,
-                        )),
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator.adaptive(strokeWidth: 2),
+                    ),
                   ),
               ],
             )
@@ -321,8 +320,7 @@ class _CentralHomeState extends State<CentralHome> {
                   )
                 else if (_bleDevices.isNotEmpty)
                   Tooltip(
-                    message:
-                        'Hide already discovered devices. When you turn on a new device, it will be easier to spot.',
+                    message: 'Hide already discovered devices. When you turn on a new device, it will be easier to spot.',
                     child: PlatformButton(
                       text: 'Hide Already Discovered Devices',
                       onPressed: () {
@@ -363,30 +361,30 @@ class _CentralHomeState extends State<CentralHome> {
             child: _isScanning && _bleDevices.isEmpty
                 ? const Center(child: CircularProgressIndicator.adaptive())
                 : !_isScanning && _bleDevices.isEmpty
-                    ? const ScannedDevicesPlaceholderWidget()
-                    : ListView.separated(
-                        itemCount: _bleDevices.length,
-                        separatorBuilder: (context, index) => const Divider(),
-                        itemBuilder: (context, index) {
-                          BleDevice device =
-                              _bleDevices[_bleDevices.length - index - 1];
-                          return ScannedItemWidget(
-                            bleDevice: device,
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => PeripheralDetailPage(device),
-                                ),
-                              );
-                              UniversalBle.stopScan();
-                              setState(() {
-                                _isScanning = false;
-                              });
-                            },
+                ? const ScannedDevicesPlaceholderWidget()
+                : ListView.separated(
+                    itemCount: _bleDevices.length,
+                    separatorBuilder: (context, index) => const Divider(),
+                    itemBuilder: (context, index) {
+                      BleDevice device =
+                          _bleDevices[_bleDevices.length - index - 1];
+                      return ScannedItemWidget(
+                        bleDevice: device,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => PeripheralDetailPage(device),
+                            ),
                           );
+                          UniversalBle.stopScan();
+                          setState(() {
+                            _isScanning = false;
+                          });
                         },
-                      ),
+                      );
+                    },
+                  ),
           ),
         ],
       ),

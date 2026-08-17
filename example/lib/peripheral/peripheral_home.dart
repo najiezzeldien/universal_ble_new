@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:universal_ble/universal_ble.dart';
 
 class PeripheralHome extends StatefulWidget {
@@ -39,54 +39,61 @@ class _PeripheralHomeState extends State<PeripheralHome> {
 
     _advertisingStateStreamSub = UniversalBlePeripheral.advertisingStateStream
         .listen((BlePeripheralAdvertisingStateChanged event) {
-      setState(() {
-        _advertisingState = event.state;
-      });
-      _log(
-        'Advertising state: ${event.state.name} ${event.error ?? ''}'.trim(),
-      );
-    });
+          setState(() {
+            _advertisingState = event.state;
+          });
+          _log(
+            'Advertising state: ${event.state.name} ${event.error ?? ''}'
+                .trim(),
+          );
+        });
 
     _characteristicSubscriptionStreamSub = UniversalBlePeripheral
         .characteristicSubscriptionStream
         .listen((BlePeripheralCharacteristicSubscriptionChanged event) {
-      _log(
-        'Characteristic subscription: ${event.deviceId} ${event.characteristicId} ${event.isSubscribed} ${event.name ?? ''}',
-      );
-    });
+          _log(
+            'Characteristic subscription: ${event.deviceId} ${event.characteristicId} ${event.isSubscribed} ${event.name ?? ''}',
+          );
+        });
 
     _connectionStateStreamSub = UniversalBlePeripheral.connectionStateStream
         .listen((BlePeripheralConnectionStateChanged event) {
-      _log(
-        'Connection state: ${event.deviceId} ${event.connected}',
-      );
-    });
+          _log('Connection state: ${event.deviceId} ${event.connected}');
+        });
 
-    _serviceAddedStreamSub = UniversalBlePeripheral.serviceAddedStream
-        .listen((BlePeripheralServiceAdded event) {
+    _serviceAddedStreamSub = UniversalBlePeripheral.serviceAddedStream.listen((
+      BlePeripheralServiceAdded event,
+    ) {
       _log('Service added: ${event.serviceId} ${event.error ?? ''}'.trim());
     });
 
-    _mtuChangedStreamSub = UniversalBlePeripheral.mtuChangedStream
-        .listen((BlePeripheralMtuChanged event) {
+    _mtuChangedStreamSub = UniversalBlePeripheral.mtuChangedStream.listen((
+      BlePeripheralMtuChanged event,
+    ) {
       _log('MTU: ${event.deviceId} mtu=${event.mtu}');
     });
 
-    UniversalBlePeripheral.setReadRequestHandlers(
-      (deviceId, characteristicId, _, __) {
-        _log('Read request: $deviceId $characteristicId');
-        return PeripheralReadRequestResult(
-          value: Uint8List.fromList(utf8.encode('Hello World')),
-        );
-      },
-    );
+    UniversalBlePeripheral.setReadRequestHandlers((
+      deviceId,
+      characteristicId,
+      _,
+      __,
+    ) {
+      _log('Read request: $deviceId $characteristicId');
+      return PeripheralReadRequestResult(
+        value: Uint8List.fromList(utf8.encode('Hello World')),
+      );
+    });
 
-    UniversalBlePeripheral.setWriteRequestHandlers(
-      (deviceId, characteristicId, _, value) {
-        _log('Write request: $deviceId $characteristicId $value');
-        return PeripheralWriteRequestResult();
-      },
-    );
+    UniversalBlePeripheral.setWriteRequestHandlers((
+      deviceId,
+      characteristicId,
+      _,
+      value,
+    ) {
+      _log('Write request: $deviceId $characteristicId $value');
+      return PeripheralWriteRequestResult();
+    });
 
     // UniversalBlePeripheral.setDescriptorReadRequestHandlers(
     //   (deviceId, characteristicId, descriptorId, _, __) {
@@ -132,21 +139,22 @@ class _PeripheralHomeState extends State<PeripheralHome> {
     if (!services.contains(_serviceBattery)) {
       await UniversalBlePeripheral.addService(
         BlePeripheralService(
-            uuid: _serviceBattery,
-            primary: true,
-            characteristics: [
-              BlePeripheralCharacteristic(
-                uuid: _charBattery,
-                properties: [
-                  CharacteristicProperty.read,
-                  CharacteristicProperty.notify
-                ],
-                permissions: [
-                  PeripheralAttributePermission.readable,
-                  PeripheralAttributePermission.writeable,
-                ],
-              ),
-            ]),
+          uuid: _serviceBattery,
+          primary: true,
+          characteristics: [
+            BlePeripheralCharacteristic(
+              uuid: _charBattery,
+              properties: [
+                CharacteristicProperty.read,
+                CharacteristicProperty.notify,
+              ],
+              permissions: [
+                PeripheralAttributePermission.readable,
+                PeripheralAttributePermission.writeable,
+              ],
+            ),
+          ],
+        ),
       );
     } else {
       _log('Service $_serviceBattery already exists');
@@ -163,7 +171,7 @@ class _PeripheralHomeState extends State<PeripheralHome> {
               properties: [
                 CharacteristicProperty.read,
                 CharacteristicProperty.notify,
-                CharacteristicProperty.write
+                CharacteristicProperty.write,
               ],
               permissions: [
                 PeripheralAttributePermission.readable,
@@ -181,10 +189,7 @@ class _PeripheralHomeState extends State<PeripheralHome> {
 
   Future<void> _startAdvertising() async {
     await UniversalBlePeripheral.startAdvertising(
-      services: [
-        _serviceBattery,
-        _serviceTest,
-      ],
+      services: [_serviceBattery, _serviceTest],
       localName: 'UniBle',
       manufacturerData: ManufacturerData(
         0x012D,
@@ -284,10 +289,8 @@ class _PeripheralHomeState extends State<PeripheralHome> {
         Expanded(
           child: ListView.builder(
             itemCount: _logs.length,
-            itemBuilder: (context, index) => ListTile(
-              dense: true,
-              title: Text(_logs[index]),
-            ),
+            itemBuilder: (context, index) =>
+                ListTile(dense: true, title: Text(_logs[index])),
           ),
         ),
       ],

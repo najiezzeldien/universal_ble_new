@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:convert/convert.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:universal_ble/universal_ble.dart';
 import 'package:universal_ble_example/peripheral_details/widgets/result_widget.dart';
 import 'package:universal_ble_example/peripheral_details/widgets/services_list_widget.dart';
@@ -37,10 +37,12 @@ class _PeripheralDetailPageState extends State<PeripheralDetailPage> {
   void initState() {
     super.initState();
 
-    connectionStreamSubscription =
-        bleDevice.connectionStream.listen(_handleConnectionChange);
-    pairingStateSubscription =
-        bleDevice.pairingStateStream.listen(_handlePairingStateChange);
+    connectionStreamSubscription = bleDevice.connectionStream.listen(
+      _handleConnectionChange,
+    );
+    pairingStateSubscription = bleDevice.pairingStateStream.listen(
+      _handlePairingStateChange,
+    );
     UniversalBle.onValueChange = _handleValueChange;
     UniversalBle.onConnectionParametersChange =
         _handleConnectionParametersChange;
@@ -84,8 +86,12 @@ class _PeripheralDetailPageState extends State<PeripheralDetailPage> {
     }
   }
 
-  void _handleValueChange(String deviceId, String characteristicId,
-      Uint8List value, int? timestamp) {
+  void _handleValueChange(
+    String deviceId,
+    String characteristicId,
+    Uint8List value,
+    int? timestamp,
+  ) {
     String s = String.fromCharCodes(value);
     String data = '$s\nraw :  ${value.toString()}';
     DateTime? timestampDateTime = timestamp != null
@@ -195,7 +201,8 @@ class _PeripheralDetailPageState extends State<PeripheralDetailPage> {
   }
 
   CharacteristicSubscription? _getCharacteristicSubscription(
-      BleCharacteristic characteristic) {
+    BleCharacteristic characteristic,
+  ) {
     var properties = characteristic.properties;
     if (properties.contains(CharacteristicProperty.notify)) {
       return characteristic.notifications;
@@ -232,274 +239,288 @@ class _PeripheralDetailPageState extends State<PeripheralDetailPage> {
               color: isConnected ? Colors.greenAccent : Colors.red,
               size: 20,
             ),
-          )
+          ),
         ],
       ),
-      body: ResponsiveView(builder: (_, DeviceType deviceType) {
-        return Row(
-          children: [
-            if (deviceType == DeviceType.desktop)
-              Expanded(
-                flex: 1,
-                child: Container(
-                  color: Theme.of(context).secondaryHeaderColor,
-                  child: discoveredServices.isEmpty
-                      ? const Center(
-                          child: Text('No Services Discovered'),
-                        )
-                      : ServicesListWidget(
-                          discoveredServices: discoveredServices,
-                          scrollable: true,
-                          onTap: (service, characteristic) {
-                            setState(() {
-                              selectedService = service;
-                              selectedCharacteristic = characteristic;
-                            });
-                          },
-                        ),
+      body: ResponsiveView(
+        builder: (_, DeviceType deviceType) {
+          return Row(
+            children: [
+              if (deviceType == DeviceType.desktop)
+                Expanded(
+                  flex: 1,
+                  child: Container(
+                    color: Theme.of(context).secondaryHeaderColor,
+                    child: discoveredServices.isEmpty
+                        ? const Center(child: Text('No Services Discovered'))
+                        : ServicesListWidget(
+                            discoveredServices: discoveredServices,
+                            scrollable: true,
+                            onTap: (service, characteristic) {
+                              setState(() {
+                                selectedService = service;
+                                selectedCharacteristic = characteristic;
+                              });
+                            },
+                          ),
+                  ),
                 ),
-              ),
-            Expanded(
-              flex: 3,
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      // Top buttons
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: <Widget>[
-                            PlatformButton(
-                              text: 'Connect',
-                              enabled: !isConnected,
-                              onPressed: () async {
-                                try {
-                                  await bleDevice.connect();
-                                  _addLog("ConnectionResult", true);
-                                } catch (e) {
-                                  _addLog('ConnectError (${e.runtimeType})', e);
-                                }
-                              },
-                            ),
-                            PlatformButton(
-                              text: 'Disconnect',
-                              enabled: isConnected,
-                              onPressed: () async {
-                                try {
-                                  await bleDevice.disconnect();
-                                  _addLog("DisconnectResult", true);
-                                } catch (e) {
-                                  _addLog(
-                                    'DisconnectError (${e.runtimeType})',
-                                    e,
-                                  );
-                                }
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                      selectedCharacteristic == null
-                          ? Text(discoveredServices.isEmpty
-                              ? "Please discover services"
-                              : "Please select a characteristic")
-                          : Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8.0,
+              Expanded(
+                flex: 3,
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        // Top buttons
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: <Widget>[
+                              PlatformButton(
+                                text: 'Connect',
+                                enabled: !isConnected,
+                                onPressed: () async {
+                                  try {
+                                    await bleDevice.connect();
+                                    _addLog("ConnectionResult", true);
+                                  } catch (e) {
+                                    _addLog(
+                                      'ConnectError (${e.runtimeType})',
+                                      e,
+                                    );
+                                  }
+                                },
                               ),
-                              child: Card(
-                                child: ListTile(
-                                  title: SelectableText(
-                                    "Characteristic: ${selectedCharacteristic?.uuid}",
-                                  ),
-                                  subtitle: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      SelectableText(
-                                        "Service: ${selectedService?.uuid}",
-                                      ),
-                                      Text(
-                                        "Properties: ${selectedCharacteristic?.properties.map((e) => e.name)}",
-                                      ),
-                                    ],
+                              PlatformButton(
+                                text: 'Disconnect',
+                                enabled: isConnected,
+                                onPressed: () async {
+                                  try {
+                                    await bleDevice.disconnect();
+                                    _addLog("DisconnectResult", true);
+                                  } catch (e) {
+                                    _addLog(
+                                      'DisconnectError (${e.runtimeType})',
+                                      e,
+                                    );
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                        selectedCharacteristic == null
+                            ? Text(
+                                discoveredServices.isEmpty
+                                    ? "Please discover services"
+                                    : "Please select a characteristic",
+                              )
+                            : Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8.0,
+                                ),
+                                child: Card(
+                                  child: ListTile(
+                                    title: SelectableText(
+                                      "Characteristic: ${selectedCharacteristic?.uuid}",
+                                    ),
+                                    subtitle: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        SelectableText(
+                                          "Service: ${selectedService?.uuid}",
+                                        ),
+                                        Text(
+                                          "Properties: ${selectedCharacteristic?.properties.map((e) => e.name)}",
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
 
-                      if (_hasSelectedCharacteristicProperty([
-                        CharacteristicProperty.write,
-                        CharacteristicProperty.writeWithoutResponse
-                      ]))
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Form(
-                            key: valueFormKey,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: TextFormField(
-                                controller: binaryCode,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter a value';
-                                  }
-                                  try {
-                                    hex.decode(binaryCode.text);
-                                    return null;
-                                  } catch (e) {
-                                    return 'Please enter a valid hex value ( without spaces or 0x (e.g. F0BB) )';
-                                  }
-                                },
-                                decoration: const InputDecoration(
-                                  hintText:
-                                      "Enter Hex values without spaces or 0x (e.g. F0BB)",
-                                  border: OutlineInputBorder(),
+                        if (_hasSelectedCharacteristicProperty([
+                          CharacteristicProperty.write,
+                          CharacteristicProperty.writeWithoutResponse,
+                        ]))
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8.0,
+                            ),
+                            child: Form(
+                              key: valueFormKey,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: TextFormField(
+                                  controller: binaryCode,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter a value';
+                                    }
+                                    try {
+                                      hex.decode(binaryCode.text);
+                                      return null;
+                                    } catch (e) {
+                                      return 'Please enter a valid hex value ( without spaces or 0x (e.g. F0BB) )';
+                                    }
+                                  },
+                                  decoration: const InputDecoration(
+                                    hintText: "Enter Hex values without spaces or 0x (e.g. F0BB)",
+                                    border: OutlineInputBorder(),
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      const Divider(),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ResponsiveButtonsGrid(
-                          children: [
-                            PlatformButton(
-                              onPressed: () async {
-                                _discoverServices();
-                              },
-                              enabled: isConnected,
-                              text: 'Discover Services',
-                            ),
-                            PlatformButton(
-                              onPressed: () async {
-                                _addLog(
-                                  'ConnectionState',
-                                  await bleDevice.connectionState,
-                                );
-                              },
-                              text: 'Connection State',
-                            ),
-                            if (BleCapabilities
-                                .supportsConnectionParametersUpdates)
+                        const Divider(),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ResponsiveButtonsGrid(
+                            children: [
                               PlatformButton(
-                                enabled: isConnected,
                                 onPressed: () async {
-                                  _requestConnectionPriority();
+                                  _discoverServices();
                                 },
-                                text: 'Request Connection Priority',
+                                enabled: isConnected,
+                                text: 'Discover Services',
                               ),
-                            if (BleCapabilities.supportsRequestMtuApi)
                               PlatformButton(
-                                enabled: isConnected,
                                 onPressed: () async {
-                                  int mtu = await bleDevice.requestMtu(247);
-                                  _addLog('MTU', mtu);
+                                  _addLog(
+                                    'ConnectionState',
+                                    await bleDevice.connectionState,
+                                  );
                                 },
-                                text: 'Request Mtu',
+                                text: 'Connection State',
                               ),
-                            PlatformButton(
-                              enabled: isConnected &&
-                                  discoveredServices.isNotEmpty &&
-                                  _hasSelectedCharacteristicProperty([
-                                    CharacteristicProperty.read,
-                                  ]),
-                              onPressed: _readValue,
-                              text: 'Read',
-                            ),
-                            PlatformButton(
-                              enabled: isConnected &&
-                                  discoveredServices.isNotEmpty &&
-                                  _hasSelectedCharacteristicProperty([
-                                    CharacteristicProperty.write,
-                                  ]),
-                              onPressed: () => _writeValue(withResponse: true),
-                              text: 'Write',
-                            ),
-                            PlatformButton(
-                              enabled: isConnected &&
-                                  discoveredServices.isNotEmpty &&
-                                  _hasSelectedCharacteristicProperty([
-                                    CharacteristicProperty.writeWithoutResponse,
-                                  ]),
-                              onPressed: () => _writeValue(withResponse: false),
-                              text: 'WriteWithoutResponse',
-                            ),
-                            PlatformButton(
-                              enabled: isConnected &&
-                                  discoveredServices.isNotEmpty &&
-                                  _hasSelectedCharacteristicProperty([
-                                    CharacteristicProperty.notify,
-                                    CharacteristicProperty.indicate
-                                  ]),
-                              onPressed: _subscribeChar,
-                              text: 'Subscribe',
-                            ),
-                            PlatformButton(
-                              enabled: isConnected &&
-                                  discoveredServices.isNotEmpty &&
-                                  _hasSelectedCharacteristicProperty([
-                                    CharacteristicProperty.notify,
-                                    CharacteristicProperty.indicate
-                                  ]),
-                              onPressed: _unsubscribeChar,
-                              text: 'Unsubscribe',
-                            ),
-                            PlatformButton(
-                              enabled: BleCapabilities.supportsAllPairingKinds,
-                              onPressed: () async {
-                                try {
-                                  await bleDevice.pair(
+                              if (BleCapabilities
+                                  .supportsConnectionParametersUpdates)
+                                PlatformButton(
+                                  enabled: isConnected,
+                                  onPressed: () async {
+                                    _requestConnectionPriority();
+                                  },
+                                  text: 'Request Connection Priority',
+                                ),
+                              if (BleCapabilities.supportsRequestMtuApi)
+                                PlatformButton(
+                                  enabled: isConnected,
+                                  onPressed: () async {
+                                    int mtu = await bleDevice.requestMtu(247);
+                                    _addLog('MTU', mtu);
+                                  },
+                                  text: 'Request Mtu',
+                                ),
+                              PlatformButton(
+                                enabled:
+                                    isConnected &&
+                                    discoveredServices.isNotEmpty &&
+                                    _hasSelectedCharacteristicProperty([
+                                      CharacteristicProperty.read,
+                                    ]),
+                                onPressed: _readValue,
+                                text: 'Read',
+                              ),
+                              PlatformButton(
+                                enabled:
+                                    isConnected &&
+                                    discoveredServices.isNotEmpty &&
+                                    _hasSelectedCharacteristicProperty([
+                                      CharacteristicProperty.write,
+                                    ]),
+                                onPressed: () =>
+                                    _writeValue(withResponse: true),
+                                text: 'Write',
+                              ),
+                              PlatformButton(
+                                enabled:
+                                    isConnected &&
+                                    discoveredServices.isNotEmpty &&
+                                    _hasSelectedCharacteristicProperty([
+                                      CharacteristicProperty
+                                          .writeWithoutResponse,
+                                    ]),
+                                onPressed: () =>
+                                    _writeValue(withResponse: false),
+                                text: 'WriteWithoutResponse',
+                              ),
+                              PlatformButton(
+                                enabled:
+                                    isConnected &&
+                                    discoveredServices.isNotEmpty &&
+                                    _hasSelectedCharacteristicProperty([
+                                      CharacteristicProperty.notify,
+                                      CharacteristicProperty.indicate,
+                                    ]),
+                                onPressed: _subscribeChar,
+                                text: 'Subscribe',
+                              ),
+                              PlatformButton(
+                                enabled:
+                                    isConnected &&
+                                    discoveredServices.isNotEmpty &&
+                                    _hasSelectedCharacteristicProperty([
+                                      CharacteristicProperty.notify,
+                                      CharacteristicProperty.indicate,
+                                    ]),
+                                onPressed: _unsubscribeChar,
+                                text: 'Unsubscribe',
+                              ),
+                              PlatformButton(
+                                enabled:
+                                    BleCapabilities.supportsAllPairingKinds,
+                                onPressed: () async {
+                                  try {
+                                    await bleDevice.pair(
                                       // pairingCommand: BleCommand(
                                       //   service: "",
                                       //   characteristic: "",
                                       // ),
-                                      );
-                                  _addLog("Pairing Result", true);
-                                } catch (e) {
-                                  _addLog('PairError (${e.runtimeType})', e);
-                                }
-                              },
-                              text: 'Pair',
-                            ),
-                            PlatformButton(
-                              onPressed: () async {
-                                bool? isPaired = await bleDevice.isPaired(
+                                    );
+                                    _addLog("Pairing Result", true);
+                                  } catch (e) {
+                                    _addLog('PairError (${e.runtimeType})', e);
+                                  }
+                                },
+                                text: 'Pair',
+                              ),
+                              PlatformButton(
+                                onPressed: () async {
+                                  bool? isPaired = await bleDevice.isPaired(
                                     // pairingCommand: BleCommand(
                                     //   service: "",
                                     //   characteristic: "",
                                     // ),
-                                    );
-                                _addLog('isPaired', isPaired);
-                              },
-                              text: 'isPaired',
-                            ),
-                            PlatformButton(
-                              onPressed: () async {
-                                await bleDevice.unpair();
-                              },
-                              text: 'Unpair',
-                            ),
-                          ],
+                                  );
+                                  _addLog('isPaired', isPaired);
+                                },
+                                text: 'isPaired',
+                              ),
+                              PlatformButton(
+                                onPressed: () async {
+                                  await bleDevice.unpair();
+                                },
+                                text: 'Unpair',
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      // Services
-                      if (deviceType != DeviceType.desktop)
-                        ServicesListWidget(
-                          discoveredServices: discoveredServices,
-                          onTap: (service, characteristic) {
-                            setState(() {
-                              selectedService = service;
-                              selectedCharacteristic = characteristic;
-                            });
-                          },
-                        ),
-                      const Divider(),
-                      ResultWidget(
+                        // Services
+                        if (deviceType != DeviceType.desktop)
+                          ServicesListWidget(
+                            discoveredServices: discoveredServices,
+                            onTap: (service, characteristic) {
+                              setState(() {
+                                selectedService = service;
+                                selectedCharacteristic = characteristic;
+                              });
+                            },
+                          ),
+                        const Divider(),
+                        ResultWidget(
                           results: _logs,
                           onClearTap: (int? index) {
                             setState(() {
@@ -509,22 +530,27 @@ class _PeripheralDetailPageState extends State<PeripheralDetailPage> {
                                 _logs.clear();
                               }
                             });
-                          }),
-                      const SizedBox(height: 20),
-                    ],
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
-        );
-      }),
+            ],
+          );
+        },
+      ),
     );
   }
 
   bool _hasSelectedCharacteristicProperty(
-      List<CharacteristicProperty> properties) {
-    return properties.any((property) =>
-        selectedCharacteristic?.properties.contains(property) ?? false);
+    List<CharacteristicProperty> properties,
+  ) {
+    return properties.any(
+      (property) =>
+          selectedCharacteristic?.properties.contains(property) ?? false,
+    );
   }
 }
