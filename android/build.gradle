@@ -1,14 +1,15 @@
-group 'com.navideck.universal_ble'
-version '1.0-SNAPSHOT'
+group = 'com.navideck.universal_ble'
+version = '1.0-SNAPSHOT'
 
 buildscript {
+    ext.kotlin_version = '2.4.0'
     repositories {
         google()
         mavenCentral()
     }
-
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.3.2'
+        classpath 'com.android.tools.build:gradle:9.1.0'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
@@ -22,15 +23,14 @@ allprojects {
 apply plugin: 'com.android.library'
 
 android {
-    if (project.android.hasProperty("namespace")) {
-        namespace 'com.navideck.universal_ble'
-    }
-
-    compileSdkVersion 34
+    namespace = 'com.navideck.universal_ble'
+    compileSdk = 37
+    buildToolsVersion = "37.0.0"
+    ndkVersion = "29.0.14206865"
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     sourceSets {
@@ -39,7 +39,7 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 21
+        minSdk = 26
     }
 
     dependencies {
@@ -50,11 +50,10 @@ android {
     testOptions {
         unitTests.all {
             useJUnitPlatform()
-
             testLogging {
-               events "passed", "skipped", "failed", "standardOut", "standardError"
-               outputs.upToDateWhen {false}
-               showStandardStreams = true
+                events "passed", "skipped", "failed", "standardOut", "standardError"
+                outputs.upToDateWhen { false }
+                showStandardStreams = true
             }
         }
     }
@@ -62,6 +61,6 @@ android {
 
 kotlin {
     compilerOptions {
-        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
     }
 }

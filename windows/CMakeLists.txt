@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.22.1)
 set(PROJECT_NAME "universal_ble")
 project(${PROJECT_NAME} LANGUAGES CXX)
 cmake_policy(VERSION 3.14...3.25)

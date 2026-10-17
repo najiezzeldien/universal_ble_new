@@ -1,5 +1,5 @@
 # Project-level configuration.
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.22.1)
 project(universal_ble_example LANGUAGES CXX)
 
 # The name of the executable created for the application. Change this to change
